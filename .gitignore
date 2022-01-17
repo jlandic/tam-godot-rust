@@ -291,4 +291,3 @@ Cargo.lock
 *.pdb
 
 bin/**/libtamrl*
-lib/**/libtamrl*
