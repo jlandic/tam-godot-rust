@@ -40,7 +40,7 @@ jobs:
         with:
           components: clippy
       - name: "Check clippy"
-        run: cargo clippy -- -D clippy::style -D clippy::complexity -D clippy::perf -D clippy::dbg_macro -D clippy::todo -D clippy::unimplemented;
+        run: cargo clippy -- -D warnings
 
   unit-test:
     runs-on: ubuntu-latest

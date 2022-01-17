@@ -1,1 +1,1 @@
-cargo clippy -- -D clippy::style -D clippy::complexity -D clippy::perf -D clippy::dbg_macro -D clippy::todo -D clippy::unimplemented
+cargo clippy -- -D warnings
