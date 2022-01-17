@@ -1,16 +1,11 @@
+use bevy_ecs::world::EntityMut;
 use gdnative::prelude::*;
-use hecs::{DynamicBundle, World};
 
 pub struct SceneSpawner;
 
 impl SceneSpawner {
-    pub fn spawn(
-        world: &mut World,
-        base_scene: &Ref<PackedScene>,
-        owner: &Node,
-        components: impl DynamicBundle,
-    ) {
-        let id = world.spawn(components).id();
+    pub fn spawn(entity: &EntityMut, base_scene: &Ref<PackedScene>, owner: &Node) {
+        let spawn = entity.id();
         let scene = unsafe {
             base_scene
                 .assume_safe()
@@ -21,7 +16,7 @@ impl SceneSpawner {
                 .unwrap()
         };
 
-        scene.set_name(id.to_string());
+        scene.set_name(spawn.id().to_string());
         owner.add_child(scene, true);
     }
 }

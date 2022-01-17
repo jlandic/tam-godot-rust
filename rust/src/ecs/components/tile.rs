@@ -1,6 +1,7 @@
 use crate::data::tiles::TileId;
+use bevy_ecs::prelude::*;
 
-#[derive(Debug)]
+#[derive(Component, Debug)]
 pub struct Tile {
     pub id: String,
 }

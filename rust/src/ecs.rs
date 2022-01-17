@@ -1,22 +1,16 @@
+use bevy_ecs::prelude::{Schedule, Stage, SystemStage, World};
 use gdnative::api::*;
 use gdnative::prelude::*;
-use hecs::World;
 
 use crate::config::WorldConfig;
-use crate::data::geo::{Map, Vec2, Vec2Unsigned};
+use crate::data::geo::{Vec2, Vec2Unsigned};
 use crate::data::tiles::TileId;
-use crate::ecs::messages::TileChanged;
-use crate::engine::SceneSpawner;
+use crate::engine::{resources::MovementInput, SceneSpawner};
 use crate::generators::{TestGenerator, TestGeneratorRoomConfig};
 
-use self::{
-    components::{Player, Position, Tile},
-    messages::Moved,
-};
+use self::components::{Player, Tile, Transform};
 
 mod components;
-mod events;
-mod messages;
 mod sync;
 mod systems;
 
@@ -24,15 +18,9 @@ mod systems;
 #[inherit(Node)]
 pub struct Ecs {
     world: World,
-    world_config: WorldConfig,
+    schedule: Schedule,
     #[property]
     base_scene: Ref<PackedScene>,
-    resources: Resources,
-}
-
-#[derive(Default)]
-pub struct Resources {
-    pub map: Map,
 }
 
 #[methods]
@@ -40,9 +28,8 @@ impl Ecs {
     fn new(_owner: &Node) -> Self {
         Self {
             world: World::new(),
-            world_config: WorldConfig::default(),
+            schedule: Schedule::default(),
             base_scene: PackedScene::new().into_shared(),
-            resources: Resources::default(),
         }
     }
 
@@ -62,29 +49,35 @@ impl Ecs {
         map.tiles.iter().enumerate().for_each(|(index, tile)| {
             let position = Vec2::from_index(index as u32, map.size.x);
             SceneSpawner::spawn(
-                &mut self.world,
+                self.world
+                    .spawn()
+                    .insert(Tile::new(*tile))
+                    .insert(Transform::new(position)),
                 &self.base_scene,
                 owner,
-                (Tile::new(*tile), position as Position, Moved, TileChanged),
             );
         });
 
-        self.resources.map = map;
-
         SceneSpawner::spawn(
-            &mut self.world,
+            self.world
+                .spawn()
+                .insert(Player {})
+                .insert(Transform::new(Vec2::new(4, 4)))
+                .insert(Tile::new(TileId::Player)),
             &self.base_scene,
             owner,
-            (
-                Player,
-                Position::new(4, 4),
-                Moved,
-                Tile::new(TileId::Player),
-                TileChanged,
-            ),
         );
 
-        self.sync_godot(owner);
+        self.world.insert_resource(map);
+        self.world.insert_resource(WorldConfig::default());
+        self.world.insert_resource(MovementInput::default());
+
+        self.schedule.add_stage(
+            "inputs",
+            SystemStage::parallel().with_system(systems::move_player),
+        );
+
+        self.sync_godot(owner)
     }
 
     #[export]
@@ -97,17 +90,22 @@ impl Ecs {
 
     #[export]
     fn move_player(&mut self, owner: &Node, direction: Vector2) {
-        events::move_player(&mut self.world, direction.into(), &self.resources.map);
+        // TODO: find if events can be sent via World instance or not
+        // events::move_player(&mut self.world, direction.into());
+        let mut movement = self.world.get_resource_mut::<MovementInput>().unwrap();
+        movement.direction = direction.into();
+
         self.advance_turn(owner);
     }
 
     fn tick(&mut self, _owner: &Node) {}
     fn advance_turn(&mut self, owner: &Node) {
+        self.schedule.run(&mut self.world);
         self.sync_godot(owner);
     }
 
     fn sync_godot(&mut self, owner: &Node) {
-        sync::update_position(&mut self.world, owner, &self.world_config);
+        sync::update_position(&mut self.world, owner);
         sync::update_tile(&mut self.world, owner);
     }
 }

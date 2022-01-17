@@ -1,7 +1,7 @@
 ![Project Logo](./godot/assets/godot-ferris-128x128.png)
 
 # tamrl
-> Put the description here!
+> Roguelike sandbox to experiment with Godot rust bindings and ECS 
 
 ## Table of contents
 * [General Information](#general-information)
@@ -19,5 +19,3 @@ Setup, installation, configuration, etc.
 ```shell
 $ make run
 ```
-## Contact
-illis

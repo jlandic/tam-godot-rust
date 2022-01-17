@@ -2,13 +2,15 @@ use std::ops::{Add, AddAssign};
 
 use gdnative::prelude::Vector2;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub struct Vec2 {
     pub x: i32,
     pub y: i32,
 }
 
 impl Vec2 {
+    pub const ZERO: Vec2 = Self { x: 0, y: 0 };
+
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
