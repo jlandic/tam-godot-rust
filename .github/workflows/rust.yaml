@@ -1,0 +1,54 @@
+name: CI
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  RUST_BACKTRACE: 1
+
+on:
+  pull_request:
+    branches:
+      - master
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Install Rust"
+        uses: ./.github/composite/rust
+        with:
+          components: rustfmt
+      - name: "Check rustfmt"
+        run: cargo fmt --all -- --check;
+
+  clippy:
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.rust == 'nightly' }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Install Rust"
+        uses: ./.github/composite/rust
+        with:
+          components: clippy
+      - name: "Check clippy"
+        run: cargo clippy -- -D warnings
+
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Install Rust"
+        uses: ./.github/composite/rust
+      - name: "Compile tests"
+        run: cargo test --no-run;
+      - name: "Test"
+        run: cargo test;
