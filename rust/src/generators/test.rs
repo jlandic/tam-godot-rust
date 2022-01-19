@@ -42,6 +42,7 @@ impl TestGenerator {
         Map {
             tiles: self.new_map(),
             size: self.size,
+            ..Default::default()
         }
     }
 

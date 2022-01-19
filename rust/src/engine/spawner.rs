@@ -13,7 +13,7 @@ impl SceneSpawner {
                 .unwrap()
                 .assume_unique()
                 .cast::<Node2D>()
-                .unwrap()
+                .expect("Expected base scene to be type Node2D")
         };
 
         scene.set_name(spawn.id().to_string());

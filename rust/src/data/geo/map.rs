@@ -4,6 +4,7 @@ use crate::data::tiles::TileId;
 pub struct Map {
     pub tiles: Vec<TileId>,
     pub size: Vec2Unsigned,
+    pub entities: Vec<u32>,
 }
 
 impl Map {
@@ -21,6 +22,7 @@ impl Default for Map {
         Self {
             tiles: Vec::new(),
             size: Vec2Unsigned::zero(),
+            entities: Vec::new(),
         }
     }
 }

@@ -4,14 +4,21 @@ use gdnative::prelude::*;
 use crate::config::WorldConfig;
 use crate::data::geo::Vec2;
 use crate::ecs::components::Transform;
+use crate::engine::Owner;
 
-pub fn update_position(world: &mut World, owner: &Node) {
-    let mut query = world.query::<(Entity, &Transform, Changed<Transform>)>();
-    for (entity, transform, _) in query.iter(world) {
-        if let Some(node) = owner.find_node(entity.id().to_string(), false, false) {
+pub fn update_position(
+    owner: Res<Owner>,
+    world_config: Res<WorldConfig>,
+    query: Query<(Entity, &Transform), Changed<Transform>>,
+) {
+    for (entity, transform) in query.iter() {
+        if let Some(node) = unsafe {
+            owner
+                .assume_unique()
+                .find_node(entity.id().to_string(), false, false)
+        } {
             let node = unsafe { node.assume_safe().cast::<Node2D>().unwrap() };
 
-            let world_config = world.get_resource::<WorldConfig>().unwrap();
             let to_position: Vector2 = Vec2::new(
                 transform.position.x * world_config.tile_size as i32
                     + (world_config.tile_size as i32 / 2),
