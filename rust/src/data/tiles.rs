@@ -23,7 +23,9 @@ impl TileId {
     }
 
     pub fn iterator() -> impl Iterator<Item = TileId> {
-        [Self::Wall, Self::Floor, Self::Player, Self::Empty].iter().copied()
+        [Self::Wall, Self::Floor, Self::Player, Self::Empty]
+            .iter()
+            .copied()
     }
 }
 

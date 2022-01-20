@@ -37,13 +37,11 @@ pub fn setup_resources(owner: &Node, world: &mut World, base_scene: &Ref<PackedS
 pub fn setup_schedule(schedule: &mut Schedule) {
     schedule.add_stage(
         "inputs",
-        SystemStage::parallel()
-            .with_system(systems::move_player),
+        SystemStage::parallel().with_system(systems::move_player),
     );
     schedule.add_stage(
         "update_world",
-        SystemStage::parallel()
-            .with_system(systems::calculate_viewshed),
+        SystemStage::parallel().with_system(systems::calculate_viewshed),
     );
     schedule.add_stage(
         "update_godot",

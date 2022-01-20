@@ -5,5 +5,6 @@ pub use player::Player;
 mod tile;
 pub use tile::Tile;
 mod transform;
-pub use transform::Transform;mod viewshed;
+pub use transform::Transform;
+mod viewshed;
 pub use viewshed::Viewshed;
