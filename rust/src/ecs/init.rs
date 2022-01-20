@@ -15,6 +15,8 @@ use crate::engine::shared::TILE_MAP_COMPONENT_NAME;
 use crate::engine::tree;
 use crate::engine::SceneSpawner;
 
+use super::components::Viewshed;
+
 pub fn setup_resources(owner: &Node, world: &mut World, base_scene: &Ref<PackedScene>) {
     world.insert_resource(Events::<MovementInput>::default());
     world.insert_resource(Events::<MapTileUpdated>::default());
@@ -22,7 +24,7 @@ pub fn setup_resources(owner: &Node, world: &mut World, base_scene: &Ref<PackedS
 
     let map = initialize_map(world);
     let tile_set_id_mapper = initialize_tile_set_id_mapper(owner);
-    initialize_player(world, owner, base_scene);
+    initialize_player(world, owner, base_scene, &map);
 
     world.insert_resource(map);
     world.insert_resource(tile_set_id_mapper);
@@ -35,14 +37,21 @@ pub fn setup_resources(owner: &Node, world: &mut World, base_scene: &Ref<PackedS
 pub fn setup_schedule(schedule: &mut Schedule) {
     schedule.add_stage(
         "inputs",
-        SystemStage::parallel().with_system(systems::move_player),
+        SystemStage::parallel()
+            .with_system(systems::move_player),
+    );
+    schedule.add_stage(
+        "update_world",
+        SystemStage::parallel()
+            .with_system(systems::calculate_viewshed),
     );
     schedule.add_stage(
         "update_godot",
         SystemStage::single_threaded()
             .with_system(sync::update_map)
             .with_system(sync::update_tile)
-            .with_system(sync::update_position),
+            .with_system(sync::update_position)
+            .with_system(sync::update_viewshed),
     );
     schedule.add_stage(
         "purge_events",
@@ -77,7 +86,7 @@ fn initialize_map(world: &mut World) -> Map {
         })
         .map(|entity| entity.unwrap().id())
         .collect::<Vec<u32>>();
-    map.entities = ids;
+    map.tile_entities = ids;
 
     let mut events = world.get_resource_mut::<Events<MapTileUpdated>>().unwrap();
     for update in updates {
@@ -89,20 +98,22 @@ fn initialize_map(world: &mut World) -> Map {
 
 fn initialize_tile_set_id_mapper(owner: &Node) -> TileSetIdMapper {
     let tile_set = unsafe {
-        tree::get_tile_set(TILE_MAP_COMPONENT_NAME, owner)
+        tree::get_tile_set(TILE_MAP_COMPONENT_NAME, owner, false)
             .expect("TileMap does not contain any tileset")
     };
 
     TileSetIdMapper::new(tile_set)
 }
 
-fn initialize_player(world: &mut World, owner: &Node, base_scene: &Ref<PackedScene>) {
+fn initialize_player(world: &mut World, owner: &Node, base_scene: &Ref<PackedScene>, map: &Map) {
+    let first_free_position = map.first_free_position().expect("Map has no free tile");
     SceneSpawner::spawn(
         world
             .spawn()
             .insert(Player {})
-            .insert(Transform::new(Vec2::new(4, 4)))
-            .insert(Tile::new(TileId::Player)),
+            .insert(Transform::new(first_free_position))
+            .insert(Tile::new(TileId::Player))
+            .insert(Viewshed::new(10)),
         base_scene,
         owner,
     );
