@@ -6,3 +6,5 @@ mod update_tile;
 pub use update_tile::update_tile;
 mod update_viewshed;
 pub use update_viewshed::update_viewshed;
+mod sync_fow;
+pub use sync_fow::sync_fow;

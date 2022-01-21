@@ -5,11 +5,11 @@ use crate::data::geo::Vec2;
 #[derive(Component, Default)]
 pub struct Viewshed {
     pub visible_tiles: Vec<Vec2>,
-    pub range: i32,
+    pub range: u32,
 }
 
 impl Viewshed {
-    pub fn new(range: i32) -> Self {
+    pub fn new(range: u32) -> Self {
         Self {
             range,
             ..Default::default()

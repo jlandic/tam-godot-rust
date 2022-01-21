@@ -39,11 +39,7 @@ impl TestGenerator {
             self.rng.assume_safe().set_seed(self.seed);
         }
 
-        Map {
-            tiles: self.new_map(),
-            size: self.size,
-            ..Default::default()
-        }
+        Map::new(self.size, self.new_map())
     }
 
     fn new_map(&self) -> Vec<TileId> {

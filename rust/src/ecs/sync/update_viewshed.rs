@@ -21,8 +21,8 @@ pub fn update_viewshed(
             true,
         )
     } {
-        for i in 0..map.size.x {
-            for j in 0..map.size.y {
+        for i in 0..map.size().x {
+            for j in 0..map.size().y {
                 tile_map.set_cell(
                     i as i64,
                     j as i64,

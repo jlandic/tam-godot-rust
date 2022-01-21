@@ -44,11 +44,16 @@ pub fn setup_schedule(schedule: &mut Schedule) {
         SystemStage::parallel().with_system(systems::calculate_viewshed),
     );
     schedule.add_stage(
+        "reveal_map",
+        SystemStage::parallel().with_system(systems::reveal_tiles),
+    );
+    schedule.add_stage(
         "update_godot",
         SystemStage::single_threaded()
             .with_system(sync::update_map)
             .with_system(sync::update_tile)
             .with_system(sync::update_position)
+            .with_system(sync::sync_fow)
             .with_system(sync::update_viewshed),
     );
     schedule.add_stage(
@@ -67,7 +72,7 @@ fn initialize_map(world: &mut World) -> Map {
         .iter()
         .enumerate()
         .map(|(i, tile)| {
-            let position = Vec2::from_index(i as u32, map.size.x);
+            let position = Vec2::from_index(i as u32, map.size().x);
             updates.push(MapTileUpdated {
                 position,
                 tile: *tile,
