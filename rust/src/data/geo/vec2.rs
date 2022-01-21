@@ -2,7 +2,9 @@ use std::ops::{Add, AddAssign};
 
 use gdnative::prelude::Vector2;
 
-#[derive(Copy, Clone, Debug, Default, PartialEq)]
+use crate::data::geo::directions::Cardinal;
+
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct Vec2 {
     pub x: i32,
     pub y: i32,
@@ -33,6 +35,39 @@ impl From<Vector2> for Vec2 {
             x: godot_vector.x as i32,
             y: godot_vector.y as i32,
         }
+    }
+}
+
+impl From<(u32, u32)> for Vec2 {
+    fn from(vector: (u32, u32)) -> Self {
+        Self {
+            x: vector.0 as i32,
+            y: vector.1 as i32,
+        }
+    }
+}
+
+impl From<(i32, i32)> for Vec2 {
+    fn from(vector: (i32, i32)) -> Self {
+        Self {
+            x: vector.0,
+            y: vector.1,
+        }
+    }
+}
+
+impl From<Cardinal> for Vec2 {
+    fn from(direction: Cardinal) -> Self {
+        let x = match direction {
+            Cardinal::North | Cardinal::South => 0,
+            Cardinal::East | Cardinal::West => 1,
+        };
+        let y = match direction {
+            Cardinal::North | Cardinal::South => 1,
+            Cardinal::East | Cardinal::West => 0,
+        };
+
+        Self { x, y }
     }
 }
 
