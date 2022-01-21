@@ -11,6 +11,7 @@ pub struct TestGenerator {
     config: TestGeneratorRoomConfig,
     seed: i64,
     rng: Ref<RandomNumberGenerator>,
+    pub rooms: Vec<Rect>,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -31,6 +32,7 @@ impl TestGenerator {
             size,
             seed,
             config,
+            rooms: Vec::new(),
         }
     }
 
@@ -42,9 +44,9 @@ impl TestGenerator {
         Map::new(self.size, self.new_map())
     }
 
-    fn new_map(&self) -> Vec<TileId> {
+    fn new_map(&mut self) -> Vec<TileId> {
         let mut map = vec![TileId::Wall; (self.size.x * self.size.y) as usize];
-        let mut rooms: Vec<Rect> = Vec::new();
+        self.rooms = Vec::new();
         let rng = unsafe { self.rng.assume_safe() };
 
         for _ in 0..self.config.max_rooms {
@@ -61,7 +63,7 @@ impl TestGenerator {
             let new_room = Rect::new(x as i32, y as i32, w as i32, h as i32);
 
             let mut ok = true;
-            for other_room in rooms.iter() {
+            for other_room in self.rooms.iter() {
                 if new_room.intersect(other_room) {
                     ok = false
                 }
@@ -70,12 +72,12 @@ impl TestGenerator {
             if ok {
                 self.apply_room_to_map(&new_room, &mut map);
 
-                if !rooms.is_empty() {
+                if !self.rooms.is_empty() {
                     let Vec2 { x: new_x, y: new_y } = new_room.center();
                     let Vec2 {
                         x: prev_x,
                         y: prev_y,
-                    } = rooms[rooms.len() - 1].center();
+                    } = self.rooms[self.rooms.len() - 1].center();
 
                     if rng.randi_range(0, 2) == 1 {
                         self.apply_horizontal_tunnel(&mut map, prev_x, new_x, prev_y);
@@ -86,7 +88,7 @@ impl TestGenerator {
                     }
                 }
 
-                rooms.push(new_room);
+                self.rooms.push(new_room);
             }
         }
 

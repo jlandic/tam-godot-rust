@@ -8,3 +8,5 @@ mod update_viewshed;
 pub use update_viewshed::update_viewshed;
 mod sync_fow;
 pub use sync_fow::sync_fow;
+mod hide_entities_outside_viewshed;
+pub use hide_entities_outside_viewshed::hide_entities_outside_viewshed;

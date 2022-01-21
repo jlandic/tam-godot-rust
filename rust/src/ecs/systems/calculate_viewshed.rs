@@ -1,13 +1,22 @@
 use crate::{data::geo::Map, ecs::components::*};
 use bevy_ecs::prelude::*;
 
+type UpdatedViewshedOrTransform = Or<(Changed<Transform>, Changed<Viewshed>)>;
+
 pub fn calculate_viewshed(
-    map: Res<Map>,
-    mut query: Query<(&mut Viewshed, &Transform), Changed<Transform>>,
+    mut map: ResMut<Map>,
+    mut query: Query<(&mut Viewshed, &Transform, Option<&Player>), UpdatedViewshedOrTransform>,
 ) {
-    for (mut viewshed, transform) in query.iter_mut() {
+    for (mut viewshed, transform, player) in query.iter_mut() {
         let range = viewshed.range;
         viewshed.clear();
-        viewshed.update_tiles(map.tiles_visible_from(transform.position, range));
+
+        let visible_tiles = if player.is_some() {
+            map.assign_tiles_visible_from(transform.position, range)
+        } else {
+            map.tiles_visible_from(transform.position, range)
+        };
+
+        viewshed.update_tiles(visible_tiles);
     }
 }

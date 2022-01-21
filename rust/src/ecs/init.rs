@@ -6,7 +6,7 @@ use gdnative::prelude::*;
 use crate::config::WorldConfig;
 use crate::data::geo::{Map, Vec2};
 use crate::data::tiles::TileId;
-use crate::ecs::components::{MapTile, Player, Tile, Transform};
+use crate::ecs::components::{MapTile, Player, Static, Tile, Transform};
 use crate::ecs::factories::TestGeneratorFactory;
 use crate::ecs::{event_manager, sync, systems};
 use crate::engine::events::{MapTileUpdated, MovementInput};
@@ -25,6 +25,7 @@ pub fn setup_resources(owner: &Node, world: &mut World, base_scene: &Ref<PackedS
     let map = initialize_map(world);
     let tile_set_id_mapper = initialize_tile_set_id_mapper(owner);
     initialize_player(world, owner, base_scene, &map);
+    initialize_npcs(world, owner, base_scene, &map);
 
     world.insert_resource(map);
     world.insert_resource(tile_set_id_mapper);
@@ -54,6 +55,7 @@ pub fn setup_schedule(schedule: &mut Schedule) {
             .with_system(sync::update_tile)
             .with_system(sync::update_position)
             .with_system(sync::sync_fow)
+            .with_system(sync::hide_entities_outside_viewshed)
             .with_system(sync::update_viewshed),
     );
     schedule.add_stage(
@@ -67,6 +69,7 @@ fn initialize_map(world: &mut World) -> Map {
 
     let mut test_generator = TestGeneratorFactory::default();
     let mut map = test_generator.generate();
+    map.rooms = test_generator.rooms;
     let ids = map
         .tiles
         .iter()
@@ -84,6 +87,7 @@ fn initialize_map(world: &mut World) -> Map {
                     .insert(Transform::new(position))
                     .insert(Tile::new(*tile))
                     .insert(MapTile {})
+                    .insert(Static {})
                     .id(),
             )
         })
@@ -109,15 +113,30 @@ fn initialize_tile_set_id_mapper(owner: &Node) -> TileSetIdMapper {
 }
 
 fn initialize_player(world: &mut World, owner: &Node, base_scene: &Ref<PackedScene>, map: &Map) {
-    let first_free_position = map.first_free_position().expect("Map has no free tile");
+    let first_room = map.rooms.first().expect("Map has no room");
     SceneSpawner::spawn(
         world
             .spawn()
             .insert(Player {})
-            .insert(Transform::new(first_free_position))
+            .insert(Transform::new(first_room.center()))
             .insert(Tile::new(TileId::Player))
             .insert(Viewshed::new(10)),
         base_scene,
         owner,
     );
+}
+
+fn initialize_npcs(world: &mut World, owner: &Node, base_scene: &Ref<PackedScene>, map: &Map) {
+    map.rooms.iter().skip(1).for_each(|room| {
+        let position = room.center();
+        SceneSpawner::spawn(
+            world
+                .spawn()
+                .insert(Transform::new(position))
+                .insert(Tile::new(TileId::Guard))
+                .insert(Viewshed::new(10)),
+            base_scene,
+            owner,
+        );
+    });
 }

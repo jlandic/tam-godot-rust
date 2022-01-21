@@ -26,3 +26,10 @@ func update_sprite(id: String):
             region_rect.position = Vector2(736, 272)
         "player":
             region_rect.position = Vector2(432, 16)
+        "guard":
+            region_rect.position = Vector2(480, 144)
+
+    if id == "player":
+        z_index = 1
+    else:
+        z_index = 0

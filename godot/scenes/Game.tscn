@@ -22,12 +22,14 @@ tile_data = PoolIntArray( 0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 65536, 0, 0, 65537
 
 [node name="OcclusionTileMap" type="TileMap" parent="ECS/TileMap"]
 modulate = Color( 0, 0, 0, 0.501961 )
+z_index = 2
 tile_set = ExtResource( 4 )
 cell_size = Vector2( 16, 16 )
 format = 1
 
 [node name="FowTileMap" type="TileMap" parent="ECS/TileMap"]
 modulate = Color( 0, 0, 0, 1 )
+z_index = 3
 tile_set = ExtResource( 4 )
 cell_size = Vector2( 16, 16 )
 format = 1

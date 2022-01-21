@@ -8,3 +8,5 @@ mod transform;
 pub use transform::Transform;
 mod viewshed;
 pub use viewshed::Viewshed;
+mod static_tile;
+pub use static_tile::Static;

@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use crate::data::geo::{Vec2, Vec2Unsigned};
+use crate::data::geo::{Rect, Vec2, Vec2Unsigned};
 use crate::data::tiles::TileId;
 
 use crate::data::geo::directions::CARDINAL_DIRECTIONS;
@@ -11,6 +11,8 @@ pub struct Map {
     pub tiles: Vec<TileId>,
     pub tile_entities: Vec<u32>,
     pub revealed: Vec<Vec2>,
+    pub visible: Vec<Vec2>,
+    pub rooms: Vec<Rect>,
     size: Vec2Unsigned,
 }
 
@@ -35,15 +37,6 @@ impl Map {
         position.index(self.size.x as i32) as usize
     }
 
-    pub fn first_free_position(&self) -> Option<Vec2> {
-        (0..self.tiles.len())
-            .find(|i| {
-                let position = Vec2::from_index(*i as u32, self.size.x);
-                !self.is_colliding(position)
-            })
-            .map(|i| Vec2::from_index(i as u32, self.size.x))
-    }
-
     pub fn tiles_visible_from(&self, origin: Vec2, range: u32) -> Vec<Vec2> {
         let mut visible: Vec<Vec2> = vec![origin];
 
@@ -55,6 +48,12 @@ impl Map {
         }
 
         return visible.iter().unique().copied().collect::<Vec<_>>();
+    }
+
+    pub fn assign_tiles_visible_from(&mut self, origin: Vec2, range: u32) -> Vec<Vec2> {
+        self.visible = self.tiles_visible_from(origin, range);
+
+        self.visible.clone()
     }
 
     fn scan_row_for_visible_tiles(&self, row: &Row, quadrant: &Quadrant, range: u32) -> Vec<Vec2> {
@@ -113,6 +112,8 @@ impl Default for Map {
             size: Vec2Unsigned::zero(),
             tile_entities: Vec::new(),
             revealed: Vec::new(),
+            rooms: Vec::new(),
+            visible: Vec::new(),
         }
     }
 }

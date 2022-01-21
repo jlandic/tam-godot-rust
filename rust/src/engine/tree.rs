@@ -25,3 +25,11 @@ pub unsafe fn get_tile_set(
         .tileset()
         .map(|tile_set| tile_set.assume_unique())
 }
+
+pub unsafe fn get_entity_node(owner: &Node, id: &str) -> Option<Ref<Node2D, Unique>> {
+    owner
+        .find_node(&id, true, false)
+        .unwrap_or_else(|| panic!("No entity found with ID {}", &id))
+        .assume_unique()
+        .cast::<Node2D>()
+}
