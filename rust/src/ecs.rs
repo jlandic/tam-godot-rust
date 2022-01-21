@@ -7,6 +7,7 @@ mod components;
 mod event_manager;
 mod factories;
 mod init;
+mod resources;
 mod sync;
 mod systems;
 

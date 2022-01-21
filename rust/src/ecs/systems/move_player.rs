@@ -1,5 +1,6 @@
 use crate::data::geo::{Map, Vec2};
 use crate::ecs::components::*;
+use crate::ecs::resources::PlayerTransform;
 use crate::engine::events::MovementInput;
 use bevy_ecs::event::Events;
 use bevy_ecs::prelude::*;
@@ -7,6 +8,7 @@ use bevy_ecs::prelude::*;
 pub fn move_player(
     movements: Res<Events<MovementInput>>,
     map: Res<Map>,
+    mut player_transform: ResMut<PlayerTransform>,
     mut transform: Query<&mut Transform, With<Player>>,
 ) {
     let mut reader = movements.get_reader();
@@ -21,6 +23,7 @@ pub fn move_player(
 
             if !map.is_colliding(next_position) {
                 transform.position = next_position;
+                player_transform.position = next_position;
             }
         }
     }

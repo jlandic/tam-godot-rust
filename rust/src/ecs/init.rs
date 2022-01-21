@@ -6,7 +6,7 @@ use gdnative::prelude::*;
 use crate::config::WorldConfig;
 use crate::data::geo::{Map, Vec2};
 use crate::data::tiles::TileId;
-use crate::ecs::components::{MapTile, Player, Static, Tile, Transform};
+use crate::ecs::components::{MapTile, Monster, Player, Static, Tile, Transform};
 use crate::ecs::factories::TestGeneratorFactory;
 use crate::ecs::{event_manager, sync, systems};
 use crate::engine::events::{MapTileUpdated, MovementInput};
@@ -15,7 +15,8 @@ use crate::engine::shared::TILE_MAP_COMPONENT_NAME;
 use crate::engine::tree;
 use crate::engine::SceneSpawner;
 
-use super::components::Viewshed;
+use super::components::{Identity, Viewshed};
+use super::resources::PlayerTransform;
 
 pub fn setup_resources(owner: &Node, world: &mut World, base_scene: &Ref<PackedScene>) {
     world.insert_resource(Events::<MovementInput>::default());
@@ -47,6 +48,10 @@ pub fn setup_schedule(schedule: &mut Schedule) {
     schedule.add_stage(
         "reveal_map",
         SystemStage::parallel().with_system(systems::reveal_tiles),
+    );
+    schedule.add_stage(
+        "npc_ai",
+        SystemStage::parallel().with_system(systems::ai_monster_dumb),
     );
     schedule.add_stage(
         "update_godot",
@@ -124,16 +129,22 @@ fn initialize_player(world: &mut World, owner: &Node, base_scene: &Ref<PackedSce
         base_scene,
         owner,
     );
+
+    world.insert_resource(PlayerTransform::new(first_room.center()));
 }
 
 fn initialize_npcs(world: &mut World, owner: &Node, base_scene: &Ref<PackedScene>, map: &Map) {
-    map.rooms.iter().skip(1).for_each(|room| {
+    map.rooms.iter().skip(1).enumerate().for_each(|(i, room)| {
         let position = room.center();
         SceneSpawner::spawn(
             world
                 .spawn()
                 .insert(Transform::new(position))
                 .insert(Tile::new(TileId::Guard))
+                .insert(Monster {})
+                .insert(Identity {
+                    name: format!("The guard #{}", i),
+                })
                 .insert(Viewshed::new(10)),
             base_scene,
             owner,
