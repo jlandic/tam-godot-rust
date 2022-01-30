@@ -13,6 +13,9 @@ func _ready():
 func _on_Node_movement_input(direction):
     ecs.move_player(direction)
 
+func console_print(line):
+    Console.write_line(line)
+
 func toggle_draw_path():
     ecs.toggle_draw_path()
 
