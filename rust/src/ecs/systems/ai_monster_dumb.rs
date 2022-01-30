@@ -1,5 +1,4 @@
 use bevy_ecs::prelude::*;
-use gdnative::godot_print;
 
 use crate::{
     data::geo::{pathfinding, Map},
@@ -18,13 +17,10 @@ pub fn ai_monster_dumb(
                 .manhattan_distance(&transform.position)
                 <= 1
             {
-                godot_print!("I've reached Player!");
                 path.points = vec![];
             } else {
-                godot_print!("Updating path to player");
                 path.points =
                     pathfinding::search(&map, &transform.position, &player_transform.position);
-                godot_print!("New path: {:?}", path.points);
             }
         }
     }

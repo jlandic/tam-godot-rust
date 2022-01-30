@@ -30,7 +30,11 @@ lint: fmt clippy
 generate-component component:
     #!/usr/bin/env ruby
     struct_name = '{{component}}'.split('_').reduce('') { |acc, elt| acc + elt.capitalize }
-    File.open('{{components_folder}}/{{component}}.rs', File::EXCL) do |f|
+    
+    filepath = '{{components_folder}}/{{component}}.rs'
+    raise 'File already exists. Aborting.' if File.exists? filepath
+        
+    File.open(filepath, 'w') do |f|
         f.puts 'use bevy_ecs::prelude::*;'
         f.puts ''
         f.puts '#[derive(Component)]'
@@ -49,7 +53,10 @@ generate-system system:
         ' ' * {{rust_indent_size}} * n
     end
 
-    File.open('{{systems_folder}}/{{system}}.rs', File::EXCL) do |f|
+    filepath = '{{systems_folder}}/{{system}}.rs'
+    raise 'File already exists. Aborting.' if File.exists? filepath
+    
+    File.open(filepath, 'w') do |f|
         f.puts 'use bevy_ecs::prelude::*;'
         f.puts ''
         f.puts 'use crate::ecs::components::*;'
@@ -72,7 +79,10 @@ generate-sync system:
         ' ' * {{rust_indent_size}} * n
     end
 
-    File.open('{{sync_folder}}/{{system}}.rs', File::EXCL) do |f|
+    filepath = '{{sync_folder}}/{{system}}.rs'
+    raise 'File already exists. Aborting.' if File.exists? filepath
+    
+    File.open(filepath, 'w') do |f|
         f.puts 'use bevy_ecs::prelude::*;'
         f.puts ''
         f.puts 'use crate::ecs::components::*;'

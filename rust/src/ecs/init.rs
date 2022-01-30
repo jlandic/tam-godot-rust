@@ -8,8 +8,9 @@ use crate::data::geo::{Map, Vec2};
 use crate::data::tiles::TileId;
 use crate::ecs::components::{MapTile, Monster, Path, Player, Static, Tile, Transform};
 use crate::ecs::factories::TestGeneratorFactory;
+use crate::ecs::resources::{ConsoleMessages, DebugConfig};
 use crate::ecs::{event_manager, sync, systems};
-use crate::engine::events::{MapTileUpdated, MovementInput};
+use crate::engine::events::{DebugConfigUpdate, MapTileUpdated, MovementInput};
 use crate::engine::resources::TileSetIdMapper;
 use crate::engine::shared::TILE_MAP_COMPONENT_NAME;
 use crate::engine::tree;
@@ -21,7 +22,12 @@ use super::resources::PlayerTransform;
 pub fn setup_resources(owner: &Node, world: &mut World, base_scene: &Ref<PackedScene>) {
     world.insert_resource(Events::<MovementInput>::default());
     world.insert_resource(Events::<MapTileUpdated>::default());
+    world.insert_resource(Events::<DebugConfigUpdate>::default());
+
     world.insert_resource(WorldConfig::default());
+    world.insert_resource(DebugConfig::default());
+
+    world.insert_resource(ConsoleMessages::default());
 
     let map = initialize_map(world);
     let tile_set_id_mapper = initialize_tile_set_id_mapper(owner);
@@ -30,9 +36,6 @@ pub fn setup_resources(owner: &Node, world: &mut World, base_scene: &Ref<PackedS
 
     world.insert_resource(map);
     world.insert_resource(tile_set_id_mapper);
-    world.insert_resource(Events::<MovementInput>::default());
-    world.insert_resource(Events::<MapTileUpdated>::default());
-    world.insert_resource(WorldConfig::default());
     world.insert_resource(unsafe { owner.assume_shared() });
 }
 
@@ -68,14 +71,26 @@ pub fn setup_schedule(schedule: &mut Schedule) {
             .with_system(sync::update_viewshed),
     );
     schedule.add_stage(
-        "update_godot_debug",
-        SystemStage::single_threaded()
-            .with_system(sync::debug_clear)
-            .with_system(sync::debug_show_neighbors),
-    );
-    schedule.add_stage(
         "purge_events",
         SystemStage::parallel().with_system(event_manager::purge_events::<MovementInput>),
+    );
+}
+
+pub fn setup_meta_schedule(schedule: &mut Schedule) {
+    schedule.add_stage(
+        "inputs",
+        SystemStage::parallel().with_system(systems::update_debug_config),
+    );
+    schedule.add_stage(
+        "update_godot_debug",
+        SystemStage::single_threaded()
+            .with_system(sync::push_console_messages)
+            .with_system(sync::debug_clear)
+            .with_system(sync::debug_show_paths),
+    );
+    schedule.add_stage(
+        "purge_meta_events",
+        SystemStage::parallel().with_system(event_manager::purge_events::<DebugConfigUpdate>),
     );
 }
 
