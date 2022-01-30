@@ -2,7 +2,7 @@ use std::ops::{Add, AddAssign};
 
 use gdnative::prelude::Vector2;
 
-use crate::data::geo::directions::Cardinal;
+use super::directions::Cardinal8;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct Vec2 {
@@ -21,11 +21,23 @@ impl Vec2 {
         (self.y * width + self.x) as usize
     }
 
+    pub fn manhattan_distance(&self, target: &Vec2) -> u32 {
+        (self.x - target.x).abs() as u32 + (self.y - target.y).abs() as u32
+    }
+
     pub fn from_index(index: u32, width: u32) -> Self {
         Self {
             x: (index % width) as i32,
             y: (index / width) as i32,
         }
+    }
+
+    pub fn chebyshev_distance(&self, to: &Vec2) -> f32 {
+        let dx = (self.x - to.x).abs() as f32;
+        let dy = (self.y - to.y).abs() as f32;
+
+        // (dx + dy) as f32 + (SQRT_2 - 2.0) * min(dx, dy) as f32
+        (dx * dx + dy * dy).sqrt()
     }
 }
 
@@ -56,24 +68,24 @@ impl From<(i32, i32)> for Vec2 {
     }
 }
 
-impl From<Cardinal> for Vec2 {
-    fn from(direction: Cardinal) -> Self {
-        let x = match direction {
-            Cardinal::North | Cardinal::South => 0,
-            Cardinal::East | Cardinal::West => 1,
-        };
-        let y = match direction {
-            Cardinal::North | Cardinal::South => 1,
-            Cardinal::East | Cardinal::West => 0,
-        };
-
-        Self { x, y }
-    }
-}
-
 impl From<Vec2> for Vector2 {
     fn from(vec: Vec2) -> Self {
         Vector2::new(vec.x as f32, vec.y as f32)
+    }
+}
+
+impl From<Cardinal8> for Vec2 {
+    fn from(direction: Cardinal8) -> Self {
+        match direction {
+            Cardinal8::North => Vec2::new(0, -1),
+            Cardinal8::NorthEast => Vec2::new(1, -1),
+            Cardinal8::East => Vec2::new(1, 0),
+            Cardinal8::SouthEast => Vec2::new(1, 1),
+            Cardinal8::South => Vec2::new(0, 1),
+            Cardinal8::SouthWest => Vec2::new(-1, 1),
+            Cardinal8::West => Vec2::new(-1, 0),
+            Cardinal8::NorthWest => Vec2::new(-1, -1),
+        }
     }
 }
 

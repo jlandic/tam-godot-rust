@@ -3,6 +3,8 @@ use bevy_ecs::prelude::{Schedule, Stage, World};
 use gdnative::api::*;
 use gdnative::prelude::*;
 
+use crate::engine::events::MovementInput;
+
 mod components;
 mod event_manager;
 mod factories;
@@ -10,8 +12,6 @@ mod init;
 mod resources;
 mod sync;
 mod systems;
-
-use crate::engine::events::MovementInput;
 
 #[derive(NativeClass)]
 #[inherit(Node)]

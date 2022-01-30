@@ -1,6 +1,7 @@
+use std::collections::HashMap;
+
 use gdnative::api::TileSet;
 use gdnative::prelude::*;
-use std::collections::HashMap;
 
 use crate::data::tiles::TileId;
 

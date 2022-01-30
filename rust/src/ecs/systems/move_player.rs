@@ -1,9 +1,10 @@
+use bevy_ecs::event::Events;
+use bevy_ecs::prelude::*;
+
 use crate::data::geo::{Map, Vec2};
 use crate::ecs::components::*;
 use crate::ecs::resources::PlayerTransform;
 use crate::engine::events::MovementInput;
-use bevy_ecs::event::Events;
-use bevy_ecs::prelude::*;
 
 pub fn move_player(
     movements: Res<Events<MovementInput>>,

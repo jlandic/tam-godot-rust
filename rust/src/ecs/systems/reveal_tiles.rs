@@ -1,5 +1,6 @@
-use crate::{data::geo::Map, ecs::components::*};
 use bevy_ecs::prelude::*;
+
+use crate::{data::geo::Map, ecs::components::*};
 
 pub fn reveal_tiles(
     mut map: ResMut<Map>,
