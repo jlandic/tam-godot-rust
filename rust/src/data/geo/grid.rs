@@ -1,5 +1,6 @@
-use crate::data::geo::{Cardinal, Vec2};
 use std::cell::Cell;
+
+use crate::data::geo::{Cardinal, Vec2};
 
 pub type RowTile = (i32, i32);
 

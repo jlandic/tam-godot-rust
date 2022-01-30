@@ -9,6 +9,6 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 gdnative = "0.9.3"
-# gdnative = { path = "../../godot-rust/gdnative" }
 bevy_ecs = "0.6.0"
 itertools = "0.10.3"
+pathfinding = "3.0.8"

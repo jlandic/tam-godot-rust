@@ -6,7 +6,7 @@ use gdnative::prelude::*;
 use crate::config::WorldConfig;
 use crate::data::geo::{Map, Vec2};
 use crate::data::tiles::TileId;
-use crate::ecs::components::{MapTile, Monster, Player, Static, Tile, Transform};
+use crate::ecs::components::{MapTile, Monster, Path, Player, Static, Tile, Transform};
 use crate::ecs::factories::TestGeneratorFactory;
 use crate::ecs::{event_manager, sync, systems};
 use crate::engine::events::{MapTileUpdated, MovementInput};
@@ -50,6 +50,10 @@ pub fn setup_schedule(schedule: &mut Schedule) {
         SystemStage::parallel().with_system(systems::reveal_tiles),
     );
     schedule.add_stage(
+        "ai_actions",
+        SystemStage::parallel().with_system(systems::move_to_player),
+    );
+    schedule.add_stage(
         "npc_ai",
         SystemStage::parallel().with_system(systems::ai_monster_dumb),
     );
@@ -62,6 +66,12 @@ pub fn setup_schedule(schedule: &mut Schedule) {
             .with_system(sync::sync_fow)
             .with_system(sync::hide_entities_outside_viewshed)
             .with_system(sync::update_viewshed),
+    );
+    schedule.add_stage(
+        "update_godot_debug",
+        SystemStage::single_threaded()
+            .with_system(sync::debug_clear)
+            .with_system(sync::debug_show_neighbors),
     );
     schedule.add_stage(
         "purge_events",
@@ -135,6 +145,9 @@ fn initialize_player(world: &mut World, owner: &Node, base_scene: &Ref<PackedSce
 
 fn initialize_npcs(world: &mut World, owner: &Node, base_scene: &Ref<PackedScene>, map: &Map) {
     map.rooms.iter().skip(1).enumerate().for_each(|(i, room)| {
+        if i > 0 {
+            return;
+        }
         let position = room.center();
         SceneSpawner::spawn(
             world
@@ -145,6 +158,7 @@ fn initialize_npcs(world: &mut World, owner: &Node, base_scene: &Ref<PackedScene
                 .insert(Identity {
                     name: format!("The guard #{}", i),
                 })
+                .insert(Path::default())
                 .insert(Viewshed::new(10)),
             base_scene,
             owner,

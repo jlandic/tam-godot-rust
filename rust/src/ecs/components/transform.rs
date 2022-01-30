@@ -1,5 +1,6 @@
-use crate::data::geo::Vec2;
 use bevy_ecs::prelude::*;
+
+use crate::data::geo::Vec2;
 
 #[derive(Component)]
 pub struct Transform {

@@ -3,6 +3,8 @@ use gdnative::{
     prelude::*,
 };
 
+use crate::data::geo::Vec2Unsigned;
+
 pub unsafe fn get_tile_map(
     tile_map_name: &str,
     owner: &Node,
@@ -13,6 +15,29 @@ pub unsafe fn get_tile_map(
         .unwrap_or_else(|| panic!("No child found with name {}", tile_map_name))
         .assume_unique()
         .cast::<TileMap>()
+}
+
+pub unsafe fn clear_map(
+    tile_map_name: &str,
+    owner: &Node,
+    recursive_search: bool,
+    size: Vec2Unsigned,
+) {
+    if let Some(tile_map) = get_tile_map(tile_map_name, owner, recursive_search) {
+        for x in 0..size.x {
+            for y in 0..size.y {
+                tile_map.set_cell(
+                    x as i64,
+                    y as i64,
+                    -1,
+                    false,
+                    false,
+                    false,
+                    Vector2::new(0., 0.),
+                );
+            }
+        }
+    }
 }
 
 pub unsafe fn get_tile_set(

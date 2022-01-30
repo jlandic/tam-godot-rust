@@ -1,11 +1,10 @@
 use itertools::Itertools;
 
-use crate::data::geo::{Rect, Vec2, Vec2Unsigned};
-use crate::data::tiles::TileId;
-
-use crate::data::geo::directions::CARDINAL_DIRECTIONS;
+use crate::data::geo::directions::{CARDINAL_8_DIRECTIONS, CARDINAL_DIRECTIONS};
 use crate::data::geo::grid;
 use crate::data::geo::{Quadrant, Row};
+use crate::data::geo::{Rect, Vec2, Vec2Unsigned};
+use crate::data::tiles::TileId;
 
 pub struct Map {
     pub tiles: Vec<TileId>,
@@ -102,6 +101,25 @@ impl Map {
 
     pub fn size(&self) -> Vec2Unsigned {
         self.size
+    }
+
+    pub fn walkable_neighbors(&self, origin: &Vec2) -> Vec<Vec2> {
+        self.neighbors_iter(*origin)
+            .filter(move |point| !self.is_colliding(*point))
+            .collect()
+    }
+
+    pub fn neighbors_iter(&self, origin: Vec2) -> impl Iterator<Item = Vec2> + '_ {
+        CARDINAL_8_DIRECTIONS
+            .iter()
+            .map(move |direction| Vec2::from(*direction))
+            .map(move |relative| origin + relative)
+            .filter(move |point| {
+                point.x >= 0
+                    && point.y >= 0
+                    && point.x < self.size.x as i32
+                    && point.y < self.size.y as i32
+            })
     }
 }
 

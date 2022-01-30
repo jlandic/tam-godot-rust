@@ -1,5 +1,6 @@
-use crate::data::{geo::Vec2, tiles::TileId};
 use gdnative::prelude::*;
+
+use crate::data::{geo::Vec2, tiles::TileId};
 
 #[derive(Default)]
 pub struct MovementInput {

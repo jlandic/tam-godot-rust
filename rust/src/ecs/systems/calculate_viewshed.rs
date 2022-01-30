@@ -1,5 +1,6 @@
-use crate::{data::geo::Map, ecs::components::*};
 use bevy_ecs::prelude::*;
+
+use crate::{data::geo::Map, ecs::components::*};
 
 type UpdatedViewshedOrTransform = Or<(Changed<Transform>, Changed<Viewshed>)>;
 
