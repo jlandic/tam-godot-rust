@@ -19,3 +19,12 @@ pub struct MapTileUpdated {
     pub position: Vec2,
     pub tile: TileId,
 }
+
+pub enum DebugAction {
+    ToggleDrawPath,
+    ToggleNoClip,
+}
+
+pub struct DebugConfigUpdate {
+    pub action: DebugAction,
+}

@@ -3,12 +3,13 @@ use bevy_ecs::prelude::*;
 
 use crate::data::geo::{Map, Vec2};
 use crate::ecs::components::*;
-use crate::ecs::resources::PlayerTransform;
+use crate::ecs::resources::{DebugConfig, PlayerTransform};
 use crate::engine::events::MovementInput;
 
 pub fn move_player(
     movements: Res<Events<MovementInput>>,
     map: Res<Map>,
+    debug_config: Res<DebugConfig>,
     mut player_transform: ResMut<PlayerTransform>,
     mut transform: Query<&mut Transform, With<Player>>,
 ) {
@@ -22,7 +23,7 @@ pub fn move_player(
                 transform.position.y + movement.direction.y,
             );
 
-            if !map.is_colliding(next_position) {
+            if debug_config.no_clip || !map.is_colliding(next_position) {
                 transform.position = next_position;
                 player_transform.position = next_position;
             }

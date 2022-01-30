@@ -9,3 +9,9 @@ impl PlayerTransform {
         Self { position }
     }
 }
+
+#[derive(Debug, Default)]
+pub struct DebugConfig {
+    pub draw_path: bool,
+    pub no_clip: bool,
+}
