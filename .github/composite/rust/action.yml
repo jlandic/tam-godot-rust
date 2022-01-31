@@ -5,7 +5,7 @@ inputs:
   rust:
     required: false
     description: "Rust toolchain, e.g. 'stable' or 'nightly'"
-    default: nightly
+    default: stable
   components:
     required: false
     description: "Components array"
