@@ -25,5 +25,5 @@ The source code of this project is licensed under the [MIT License](https://open
 
 ### 3rd party attribution
 
-"[1-Bit Pack](https://www.kenney.nl/assets/bit-pack)" tileset by [Kenney](https://www.kenney.nl) is licensed under Creative Commons Universal [CC0](https://creativecommons.org/share-your-work/public-domain/cc0/)
-"[Godot Console](https://github.com/quentincaffeino/godot-console) library by [@quentincaffeino](https://github.com/quentincaffeino) licensed under MIT License
+"[1-Bit Pack](https://www.kenney.nl/assets/bit-pack)" tileset by [Kenney](https://www.kenney.nl) is licensed under Creative Commons Universal [CC0](https://creativecommons.org/share-your-work/public-domain/cc0/)  
+"[Godot Console](https://github.com/quentincaffeino/godot-console)" library by [@quentincaffeino](https://github.com/quentincaffeino) licensed under MIT License
